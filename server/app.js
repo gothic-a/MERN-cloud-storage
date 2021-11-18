@@ -15,6 +15,8 @@ const app = express()
 if(process.env.MODE === 'development') app.use(morgan('dev'))
 app.use(express.json())
 
+app.get('/', (req, res, next) => res.send('cloud API'))
+
 app.use('/api/account', accountRouter)
 app.use(errorMiddleware)
 
