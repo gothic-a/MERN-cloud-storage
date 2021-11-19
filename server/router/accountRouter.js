@@ -9,6 +9,9 @@ router.route('/create').post(create)
 router.route('/activate').post()
 router.route('/login').post()
 router.route('/logout').post()
-router.route('/refresh-token').post()
+router.route('/refresh').get()
+
+router.route('/info').get()
+router.route('/update').put()
 
 export default router
