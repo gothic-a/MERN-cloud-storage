@@ -8,7 +8,7 @@
     "client": "npm start --prefix client",
     "start": "concurrently \"npm run client\" \"npm run server\" "
   },
-  "repository" : {
+  "repository": {
     "type": "git",
     "url": "git@github.com-self:gothic-a/MERN-cloud-storage.git"
   },
