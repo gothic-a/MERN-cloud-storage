@@ -5,6 +5,10 @@ class ApiErrors extends Error {
         this.error = error 
     }
 
+    static Conflict(message, error = []) {
+        return new ApiErrors(409, message, error)
+    }
+
     static BadRequest(message, error = []) {
         return new ApiErrors(400, message, error)
     }

@@ -5,7 +5,7 @@ const errorMiddleware = (err, req, res, next) => {
         return res.status(err.status).json({message: err.message, error: err.error})
     }
 
-    return res.status(500).json({message: 'Server error', name: err.name, stack: err.stack})
+    return res.status(500).json({message: `Server error: ${err.message}`, name: err.name, stack: err.stack})
 }
 
 export default errorMiddleware

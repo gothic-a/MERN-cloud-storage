@@ -1,6 +1,7 @@
-import { Schema, Model } from 'mongoose'
+import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
 
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
     {
         email: {
             type: String,
@@ -24,22 +25,22 @@ const userSchema = new Schema(
             default: null,
         },
         sessions: [{
-            type: Schema.Types.ObjectID,
+            type: mongoose.Schema.Types.ObjectID,
             ref: 'Session',
             default: [],
         }],
         cloud: {
-            type: Schema.Types.ObjectID,
+            type: mongoose.Schema.Types.ObjectID,
             ref: 'Cloud',
             default: null
         },
         subscription: {
-            type: Schema.Types.ObjectID,
+            type: mongoose.Schema.Types.ObjectID,
             ref: 'Subscription',
             default: null,
         },
         payments: [{
-            type: Schema.Types.ObjectID,
+            type: mongoose.Schema.Types.ObjectID,
             ref: 'Payment',
             default: []
         }]
@@ -60,4 +61,4 @@ userSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, salt)
 })
 
-export default Model('User', userSchema)
+export default mongoose.model('User', userSchema)
