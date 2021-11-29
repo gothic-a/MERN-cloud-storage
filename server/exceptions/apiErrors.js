@@ -13,7 +13,13 @@ class ApiErrors extends Error {
         return new ApiErrors(400, message, error)
     }
 
+    static Unauthorized(message = 'Authorization error', error = []) {
+        return new ApiErrors(401, message, error)
+    }
 
+    static TokenExpired() {
+        return new ApiErrors(419, 'Token expired')
+    }
 }
 
 export default ApiErrors

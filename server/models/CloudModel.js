@@ -1,13 +1,13 @@
-import { Schema, Model } from 'mongoose'
+import mongoose from 'mongoose'
 
-const cloudSchema = new Schema(
+const cloudSchema = new mongoose.Schema(
     {
         user: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
         },
-        awsBucket: {
+        awsFolder: {
             type: String,
             required: true
         },
@@ -16,16 +16,17 @@ const cloudSchema = new Schema(
             default: 0
         },
         files: [{
-            type: Schema.Types.ObjectId,
-            ref: 'File'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'File',
+            default: []
         }],
         sharedFiles: [{
-            type: Schema.types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'SharedFile',
             default: []
         }],
         receivedFiles: [{
-            type: Schema.types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'SharedFile',
             default: []
         }]
@@ -35,4 +36,4 @@ const cloudSchema = new Schema(
     }
 )
 
-export default Model('Cloud', cloudSchema)
+export default mongoose.model('Cloud', cloudSchema)

@@ -1,3 +1,4 @@
+import ApiErrors from '../exceptions/apiErrors.js'
 import userService from '../services/account/userService.js'
 
 class AccountController {
@@ -16,8 +17,11 @@ class AccountController {
     async activate(req, res, next) {
         try {
             const { activationCode } = req.body
-        } catch(e) {
+            const userId = req.user
 
+            const userData = await userService.activate(activationCode, userId)
+        } catch(e) {
+            next(e)
         }
     }
 }

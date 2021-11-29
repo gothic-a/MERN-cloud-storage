@@ -1,18 +1,22 @@
-import { Schema, Model } from 'mongoose'
+import mongoose from 'mongoose'
 
-const sessionSchema = new Schema(
+const sessionSchema = new mongoose.Schema(
     {
+        user: {
+            type: mongoose.Schema.Types.ObjectID,
+            required: true,
+        },
         refreshToken: {
             type: String,
             required: true
         },
         ip: {
             type: String,
-            required: false,
+            default: null
         },
         device: {
             type: String,
-            required: false
+            default: null
         }
     },
     {
@@ -20,5 +24,5 @@ const sessionSchema = new Schema(
     }
 )
 
-export default Model('Session', sessionSchema)
+export default mongoose.model('Session', sessionSchema)
 
