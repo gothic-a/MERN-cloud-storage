@@ -1,6 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
 
 import accountRouter from './router/accountRouter.js'
 import errorMiddleware from './middlewares/errorMiddleware.js' 
@@ -12,8 +13,9 @@ connectDB()
 
 const app = express()
 
-if(process.env.MODE === 'development') app.use(morgan('dev'))
+app.use(cookieParser())
 app.use(express.json())
+if (process.env.MODE === 'development') app.use(morgan('dev'))
 
 app.get('/', (req, res, next) => res.send('cloud API'))
 

@@ -16,10 +16,17 @@ class AccountController {
 
     async activate(req, res, next) {
         try {
-            const { activationCode } = req.body
+            const { activationCode, device = null } = req.body
             const userId = req.user
+            const ip = req.ip === '::1' ? '127:0:0:1' : req.ip
 
-            const userData = await userService.activate(activationCode, userId)
+            const { user, accessToken, refreshToken } = await userService.activate(activationCode, userId, ip, device)
+
+            res.cookie('refreshToken', refreshToken, { maxAge: 45 * 24 * 60 * 60 * 1000, httpOnly: true })
+            res.json({
+                user,
+                accessToken
+            })
         } catch(e) {
             next(e)
         }

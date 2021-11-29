@@ -4,6 +4,7 @@ import tokenService from './tokenService.js'
 import MailService from './mailService.js'
 import cloudService from '../cloud/cloudService.js'
 import sessionService from './sessionService.js'
+import subscriptionService from './subscriptionService.js'
 
 import ApiErrors from '../../exceptions/apiErrors.js'
 
@@ -30,11 +31,7 @@ class UserService {
 
         const userDto = new UserDto(user)
 
-        const tempToken = tokenService.createTemporaryToken({
-            id: userDto.id,
-            email: userDto.email,
-            name: userDto.name
-        }) 
+        const tempToken = tokenService.createTemporaryToken({...userDto}) 
 
         return {
             tempToken,
@@ -42,12 +39,10 @@ class UserService {
         }
     }
 
-    async activate(activationCode, userId) {
+    async activate(activationCode, userId, ip, device) {
         const user = await UserModel.findById(userId)
 
         if (!user) throw ApiErrors.BadRequest('User not found')
-
-        // check activation code
 
         if (user.activationCode === activationCode) {
             user.isActivated = true
@@ -55,20 +50,25 @@ class UserService {
             throw ApiErrors.BadRequest('Fake activation code')
         }
 
-        // create user cloud 
-
         const cloud = await cloudService.create(userId)
-
         user.cloud = cloud._id
 
-        // create subscription
+        const subscription = await subscriptionService.create(userId)
+        user.subscription = subscription._id
 
-        // create session 
+        const userDto = new UserDto(user)
 
-
-
+        const { accessToken, refreshToken } = tokenService.createPairToken({...userDto})
+        const session = await sessionService.create(userId, refreshToken, ip, device)
+        user.sessions.push(session._id)
 
         await user.save()
+
+        return { 
+            user: userDto,
+            accessToken,
+            refreshToken
+        }
     }
 }
 
