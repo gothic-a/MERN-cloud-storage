@@ -70,6 +70,41 @@ class UserService {
             refreshToken
         }
     }
+
+    async login(email, password, ip, device) {
+        const user = await UserModel.findOne({email})
+
+        if(!user) throw ApiErrors.BadRequest('Wrong email or password')
+
+        const isPassEquals = await user.comparePassword(password)
+        if(!isPassEquals) throw ApiErrors.BadRequest('Wrong email or password')
+
+        const userDto = new UserDto(user)
+
+        console.log(userDto)
+
+        if(!user.isActivated) {
+            const tempToken = tokenService.createTempToken({...userDto})
+
+            return {
+                tempToken,
+                user: userDto
+            }
+        } else {
+            const { accessToken, refreshToken } = tokenService.createPairToken({...userDto})
+            const session = await sessionService.create(userDto.id, refreshToken, ip, device)
+
+            user.sessions.push(session._id)
+
+            user.save()
+
+            return { 
+                user: userDto,
+                accessToken,
+                refreshToken
+            }
+        }
+    }
 }
 
 export default new UserService
