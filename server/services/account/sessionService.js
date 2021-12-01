@@ -1,8 +1,9 @@
 import SessionModel from '../../models/SessionModel.js'
+import tokenService from './tokenService.js'
 
 class SessionService {
-    async create(userId, refreshToken, ip = null, device = null) {
-        const userSessions = await SessionModel.find({user: userId}).sort({updatedAt: -1})
+    async create(user, ip = null, device = null) {
+        const userSessions = await SessionModel.find({user: user.id}).sort({updatedAt: -1})
 
         if(userSessions.length >= 5) {
             const lastSessionId = userSessions[userSessions.length - 1]._id
@@ -11,13 +12,22 @@ class SessionService {
         } 
 
         const session = await SessionModel.create({
-            user: userId,
-            refreshToken,
+            user: user.id,
             ip,
             device
         })
 
-        return session
+        const { accessToken, refreshToken } = tokenService.createPairToken({...user, session: session._id})
+
+        session.refreshToken = refreshToken
+
+        await session.save()
+
+        return {
+            session,
+            accessToken,
+            refreshToken
+        }
     }
 
     async refresh(userId, refreshToken, ip, device) {

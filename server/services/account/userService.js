@@ -43,6 +43,7 @@ class UserService {
         const user = await UserModel.findById(userId)
 
         if (!user) throw ApiErrors.BadRequest('User not found')
+        if (user.isActivated) throw ApiErrors.BadRequest('User already activated')
 
         if (user.activationCode === activationCode) {
             user.isActivated = true
@@ -58,8 +59,7 @@ class UserService {
 
         const userDto = new UserDto(user)
 
-        const { accessToken, refreshToken } = tokenService.createPairToken({...userDto})
-        const session = await sessionService.create(userId, refreshToken, ip, device)
+        const { session, accessToken, refreshToken } = await sessionService.create(userDto, ip, device)
         user.sessions.push(session._id)
 
         await user.save()
@@ -81,8 +81,6 @@ class UserService {
 
         const userDto = new UserDto(user)
 
-        console.log(userDto)
-
         if(!user.isActivated) {
             const tempToken = tokenService.createTempToken({...userDto})
 
@@ -91,12 +89,10 @@ class UserService {
                 user: userDto
             }
         } else {
-            const { accessToken, refreshToken } = tokenService.createPairToken({...userDto})
-            const session = await sessionService.create(userDto.id, refreshToken, ip, device)
-
+            const { session, accessToken, refreshToken } = await sessionService.create(userDto, ip, device)
             user.sessions.push(session._id)
 
-            user.save()
+            await user.save()
 
             return { 
                 user: userDto,
@@ -104,6 +100,10 @@ class UserService {
                 refreshToken
             }
         }
+    }
+
+    async refresh(refreshToken, ip, device) {
+        
     }
 }
 

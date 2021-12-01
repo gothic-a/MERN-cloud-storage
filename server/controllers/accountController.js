@@ -1,4 +1,3 @@
-import ApiErrors from '../exceptions/apiErrors.js'
 import userService from '../services/account/userService.js'
 
 class AccountController {
@@ -54,6 +53,14 @@ class AccountController {
                     tempToken
                 })
             }
+        } catch(e) {
+            next(e)
+        }
+    }
+
+    async refresh(req, res, next) {
+        try {
+            
         } catch(e) {
             next(e)
         }
