@@ -1,5 +1,7 @@
+import ApiErrors from '../../exceptions/apiErrors.js'
 import SessionModel from '../../models/SessionModel.js'
 import tokenService from './tokenService.js'
+import userService from './userService.js'
 
 class SessionService {
     async create(user, ip = null, device = null) {
@@ -17,7 +19,7 @@ class SessionService {
             device
         })
 
-        const { accessToken, refreshToken } = tokenService.createPairToken({...user, session: session._id})
+        const { accessToken, refreshToken } = tokenService.createPairToken({...user, sessionId: session._id})
 
         session.refreshToken = refreshToken
 
@@ -30,8 +32,26 @@ class SessionService {
         }
     }
 
-    async refresh(userId, refreshToken, ip, device) {
+    async refresh(token, ip, device) {
+        const { sessionId, id} = tokenService.validateRefreshToken(token)
+        
+        const session = await SessionModel.findOne({_id: sessionId, user: id})
 
+        if(!session || session.refreshToken !== token) throw ApiErrors.Unauthorized()
+        const user = await userService.getUserData(id)
+
+        const { accessToken, refreshToken } = tokenService.createPairToken({...user, sessionId: session._id})
+        
+        session.refreshToken = refreshToken 
+        session.ip = ip
+        session.device = device
+
+        await session.save()
+
+        return {
+            accessToken,
+            refreshToken
+        }
     }
 }
 

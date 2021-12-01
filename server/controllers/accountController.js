@@ -60,7 +60,15 @@ class AccountController {
 
     async refresh(req, res, next) {
         try {
-            
+            const { refreshToken } = req.cookies
+            const { device = null } = req.body
+            const ip = req.ip === '::1' ? '127:0:0:1' : req.ip
+
+            const tokens = await userService.refresh(refreshToken, ip, device)
+
+            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 45 * 24 * 60 * 60 * 1000, httpOnly: true })
+
+            res.json({ accessToken: tokens.accessToken })
         } catch(e) {
             next(e)
         }

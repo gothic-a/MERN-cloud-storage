@@ -102,8 +102,22 @@ class UserService {
         }
     }
 
-    async refresh(refreshToken, ip, device) {
-        
+    async refresh(token, ip, device) {
+        if(!token) throw ApiErrors.Unauthorized()
+
+        const { accessToken, refreshToken } = await sessionService.refresh(token, ip, device)
+
+        return { 
+            accessToken, 
+            refreshToken
+        }
+    }
+
+    async getUserData(id) {
+        const user = await UserModel.findById(id)
+        const userDto = new UserDto(user)
+
+        return userDto
     }
 }
 
